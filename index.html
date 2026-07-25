@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Original experiments and practical walkthroughs for Chrome's experimental HTML-in-Canvas API."
+    />
+    <meta name="theme-color" content="#090a0f" />
+    <title>Canvas Native Lab — HTML-in-Canvas experiments</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Canvas Native Lab, home">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span>Canvas Native Lab</span>
+      </a>
+
+      <nav aria-label="Primary navigation">
+        <a href="#experiments">Experiments</a>
+        <a href="#anatomy">Walkthrough</a>
+        <a href="#field-notes">Field notes</a>
+      </nav>
+
+      <a class="header-link" href="https://github.com/pablodcruz/html-in-canvas-lab" data-repo-link>
+        <span>GitHub</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+        <div class="hero-grid" aria-hidden="true"></div>
+
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            Experimental web platform field guide
+          </div>
+          <h1>Put the <em>DOM</em><br />inside the canvas.</h1>
+          <p class="hero-intro">
+            Real HTML as a canvas texture—still selectable, searchable,
+            accessible, and interactive. Explore the API through original,
+            progressive-enhancement demos.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#experiments">
+              Run the experiments <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              class="button button-secondary"
+              href="https://developer.chrome.com/blog/html-in-canvas-origin-trial"
+            >
+              Read the Chrome brief <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-console" aria-label="Browser capability status">
+          <div class="console-bar">
+            <div class="traffic-lights" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <span>capability-check.js</span>
+            <span class="console-index">01</span>
+          </div>
+          <div class="console-body">
+            <p><span class="code-keyword">const</span> canvas = document.<span class="code-method">querySelector</span>(<span class="code-string">"canvas"</span>);</p>
+            <p><span class="code-keyword">const</span> ctx = canvas.<span class="code-method">getContext</span>(<span class="code-string">"2d"</span>);</p>
+            <p class="console-result">
+              <span aria-hidden="true">›</span>
+              <span id="heroCapability">Checking browser capability…</span>
+            </p>
+          </div>
+          <div class="console-status">
+            <span class="status-icon" id="statusIcon" aria-hidden="true">◌</span>
+            <div>
+              <span class="status-label">Runtime</span>
+              <strong id="statusTitle">Inspecting this browser</strong>
+              <small id="statusDetail">Testing CanvasRenderingContext2D</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-meta" aria-label="Project facts">
+          <span>Chrome 148–150 origin trial</span>
+          <span>Canvas 2D · WebGL · WebGPU</span>
+          <span>Progressive enhancement</span>
+        </div>
+      </section>
+
+      <section class="premise section-shell" aria-labelledby="premise-title">
+        <div class="section-kicker">The premise</div>
+        <div class="premise-copy">
+          <h2 id="premise-title">No longer a choice between <span>meaning</span> and <span>pixels.</span></h2>
+          <p>
+            Canvas gives us low-level visual control. The DOM gives us language,
+            forms, accessibility, selection, and browser-native behavior. The
+            experimental API creates a bridge: draw an element, then tell the
+            browser where its interactive surface landed.
+          </p>
+        </div>
+        <div class="premise-comparison" aria-label="Technology capability comparison">
+          <article>
+            <span class="comparison-number">01</span>
+            <h3>DOM</h3>
+            <p>Semantic, indexable, responsive</p>
+            <div class="meter"><span style="--meter: 68%"></span></div>
+          </article>
+          <div class="comparison-join" aria-hidden="true">+</div>
+          <article>
+            <span class="comparison-number">02</span>
+            <h3>Canvas</h3>
+            <p>Programmable, spatial, GPU-ready</p>
+            <div class="meter"><span style="--meter: 86%"></span></div>
+          </article>
+          <div class="comparison-join" aria-hidden="true">=</div>
+          <article class="comparison-result">
+            <span class="comparison-number">03</span>
+            <h3>Native UI texture</h3>
+            <p>One surface, both capability sets</p>
+            <div class="meter"><span style="--meter: 100%"></span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="experiments section-shell" id="experiments" aria-labelledby="experiments-title">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Live experiments</div>
+            <h2 id="experiments-title">Three ways to think beyond the rectangle.</h2>
+          </div>
+          <p>
+            Each study isolates one idea: native rendering, spatial
+            transformation, and graceful fallback.
+          </p>
+        </div>
+
+        <article class="experiment experiment-featured">
+          <div class="experiment-copy">
+            <div class="experiment-label">
+              <span>Experiment 01</span>
+              <span class="tag tag-lab">API LAB</span>
+            </div>
+            <h3>Interactive control surface</h3>
+            <p>
+              A real form is painted into Canvas 2D. In a supporting browser,
+              the input remains focusable and editable. Everywhere else, the
+              same interface stays usable as ordinary HTML.
+            </p>
+            <ul class="feature-list">
+              <li><span aria-hidden="true">✓</span> Native input semantics</li>
+              <li><span aria-hidden="true">✓</span> Device-pixel aware</li>
+              <li><span aria-hidden="true">✓</span> DOM fallback</li>
+            </ul>
+            <div class="mode-switch" aria-label="Preview mode">
+              <button class="mode-button is-active" type="button" data-mode="fallback">Compatible</button>
+              <button class="mode-button" type="button" data-mode="native" id="nativeModeButton">Native API</button>
+            </div>
+          </div>
+
+          <div class="experiment-stage control-stage">
+            <canvas id="nativeCanvas" class="native-canvas" layoutsubtree>
+              <form class="control-surface control-surface-native" id="nativeSurface">
+                <div class="surface-topline">
+                  <span>Atmosphere / 04</span>
+                  <span class="surface-live"><i></i> LIVE</span>
+                </div>
+                <label for="nativeIntensity">Signal intensity</label>
+                <div class="range-row">
+                  <input id="nativeIntensity" type="range" min="0" max="100" value="64" />
+                  <output for="nativeIntensity">64%</output>
+                </div>
+                <div class="swatch-row" aria-label="Accent color">
+                  <button class="swatch is-active" type="button" data-color="#c8ff3d" aria-label="Acid green"></button>
+                  <button class="swatch" type="button" data-color="#8c7cff" aria-label="Violet"></button>
+                  <button class="swatch" type="button" data-color="#ff6f5e" aria-label="Coral"></button>
+                </div>
+              </form>
+            </canvas>
+
+            <form class="control-surface control-surface-fallback" id="fallbackSurface">
+              <div class="surface-topline">
+                <span>Atmosphere / 04</span>
+                <span class="surface-live"><i></i> LIVE</span>
+              </div>
+              <label for="fallbackIntensity">Signal intensity</label>
+              <div class="range-row">
+                <input id="fallbackIntensity" type="range" min="0" max="100" value="64" />
+                <output for="fallbackIntensity">64%</output>
+              </div>
+              <div class="swatch-row" aria-label="Accent color">
+                <button class="swatch is-active" type="button" data-color="#c8ff3d" aria-label="Acid green"></button>
+                <button class="swatch" type="button" data-color="#8c7cff" aria-label="Violet"></button>
+                <button class="swatch" type="button" data-color="#ff6f5e" aria-label="Coral"></button>
+              </div>
+            </form>
+            <div class="stage-noise" aria-hidden="true"></div>
+            <span class="stage-caption" id="stageCaption">DOM fallback · available everywhere</span>
+          </div>
+        </article>
+
+        <div class="experiment-grid">
+          <article class="experiment experiment-compact">
+            <div class="experiment-copy">
+              <div class="experiment-label">
+                <span>Experiment 02</span>
+                <span class="tag">CANVAS 2D</span>
+              </div>
+              <h3>Pixel lens</h3>
+              <p>
+                Move through a field of live pixels. This compatible study
+                previews the kind of optical treatment a DOM texture can enter.
+              </p>
+            </div>
+            <div class="lens-stage" id="lensStage">
+              <canvas id="lensCanvas" aria-label="Interactive pixel lens"></canvas>
+              <div class="lens-copy" aria-hidden="true">
+                <strong>Signal</strong>
+                <span>Move to inspect</span>
+              </div>
+              <div class="lens-cursor" id="lensCursor" aria-hidden="true"></div>
+            </div>
+          </article>
+
+          <article class="experiment experiment-compact">
+            <div class="experiment-copy">
+              <div class="experiment-label">
+                <span>Experiment 03</span>
+                <span class="tag">DOM + MOTION</span>
+              </div>
+              <h3>Spatial stack</h3>
+              <p>
+                Tilt a semantic card stack in 3D. It models the transform
+                handoff needed to keep hit targets aligned with rendered pixels.
+              </p>
+            </div>
+            <div class="stack-stage" id="stackStage" tabindex="0" aria-label="Interactive spatial card stack. Move pointer or use arrow keys to tilt.">
+              <div class="stack-card stack-card-back" aria-hidden="true"></div>
+              <div class="stack-card stack-card-mid" aria-hidden="true"></div>
+              <div class="stack-card stack-card-front">
+                <span>DOMMatrix</span>
+                <strong>Viewport × MVP × Normalization</strong>
+                <small>Interactive surface aligned</small>
+                <i aria-hidden="true">↗</i>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="anatomy section-shell" id="anatomy" aria-labelledby="anatomy-title">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">API anatomy</div>
+            <h2 id="anatomy-title">The smallest useful implementation.</h2>
+          </div>
+          <p>
+            The core loop is compact. The architectural consequences are the
+            interesting part.
+          </p>
+        </div>
+
+        <div class="anatomy-layout">
+          <ol class="step-list">
+            <li class="is-active" data-step="1">
+              <button type="button">
+                <span>01</span>
+                <span><strong>Declare the subtree</strong><small>Let Canvas own HTML descendants.</small></span>
+              </button>
+            </li>
+            <li data-step="2">
+              <button type="button">
+                <span>02</span>
+                <span><strong>Paint the element</strong><small>Draw DOM into the pixel surface.</small></span>
+              </button>
+            </li>
+            <li data-step="3">
+              <button type="button">
+                <span>03</span>
+                <span><strong>Sync the transform</strong><small>Map interaction back to the DOM.</small></span>
+              </button>
+            </li>
+          </ol>
+
+          <div class="code-window">
+            <div class="code-window-bar">
+              <div>
+                <span></span><span></span><span></span>
+              </div>
+              <span id="codeFilename">index.html</span>
+              <button class="copy-button" type="button" data-copy-target="activeCode">Copy</button>
+            </div>
+            <pre id="activeCode" aria-live="polite"><code><span class="line-number">1</span><span class="code-tag">&lt;canvas</span> <span class="code-attr">id</span>=<span class="code-string">"scene"</span> <mark>layoutsubtree</mark><span class="code-tag">&gt;</span>
+<span class="line-number">2</span>  <span class="code-tag">&lt;form</span> <span class="code-attr">id</span>=<span class="code-string">"controls"</span><span class="code-tag">&gt;</span>
+<span class="line-number">3</span>    <span class="code-tag">&lt;label&gt;</span>Intensity<span class="code-tag">&lt;/label&gt;</span>
+<span class="line-number">4</span>    <span class="code-tag">&lt;input</span> <span class="code-attr">type</span>=<span class="code-string">"range"</span> <span class="code-tag">/&gt;</span>
+<span class="line-number">5</span>  <span class="code-tag">&lt;/form&gt;</span>
+<span class="line-number">6</span><span class="code-tag">&lt;/canvas&gt;</span></code></pre>
+            <div class="code-explanation" id="codeExplanation">
+              <strong>The attribute is the handshake.</strong>
+              <p>
+                <code>layoutsubtree</code> tells the browser to lay out
+                descendants of the canvas and expose them to accessibility
+                systems.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="field-notes section-shell" id="field-notes" aria-labelledby="notes-title">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Field notes</div>
+            <h2 id="notes-title">What survives the trip into pixels?</h2>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <article>
+            <span class="note-icon" aria-hidden="true">Aa</span>
+            <div>
+              <h3>Text stays text</h3>
+              <p>Select it, copy it, translate it, and find it in-page.</p>
+            </div>
+          </article>
+          <article>
+            <span class="note-icon" aria-hidden="true">⌁</span>
+            <div>
+              <h3>Inputs stay native</h3>
+              <p>Forms retain focus, editing behavior, and browser integrations.</p>
+            </div>
+          </article>
+          <article>
+            <span class="note-icon" aria-hidden="true">◎</span>
+            <div>
+              <h3>Pixels get spatial</h3>
+              <p>Send the result through 2D Canvas, WebGL, or WebGPU.</p>
+            </div>
+          </article>
+          <article>
+            <span class="note-icon" aria-hidden="true">◇</span>
+            <div>
+              <h3>Meaning stays visible</h3>
+              <p>Assistive tech, crawlers, and agents can inspect the DOM.</p>
+            </div>
+          </article>
+        </div>
+
+        <aside class="caution">
+          <div class="caution-mark" aria-hidden="true">!</div>
+          <div>
+            <span>Reality check</span>
+            <h3>This is an origin trial, not a production default.</h3>
+          </div>
+          <p>
+            Chrome 148–150 exposes an early API whose details may change. Ship a
+            normal DOM experience first, feature-detect the capability, respect
+            reduced motion, and test assistive technology explicitly.
+          </p>
+          <a href="./docs/browser-support.md">Read the support strategy →</a>
+        </aside>
+      </section>
+
+      <section class="next-step">
+        <div class="next-step-grid" aria-hidden="true"></div>
+        <div class="section-kicker">Your turn</div>
+        <h2>Make the interface<br /><span>physically impossible.</span></h2>
+        <p>
+          Fork the lab, enable the flag in Chrome Canary, and replace the
+          control surface with your own semantic HTML.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="https://github.com/pablodcruz/html-in-canvas-lab" data-repo-link>
+            Explore the repository <span aria-hidden="true">↗</span>
+          </a>
+          <a class="button button-outline-dark" href="./docs/getting-started.md">
+            Open the walkthrough
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <a class="brand footer-brand" href="#top">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+          <span>Canvas Native Lab</span>
+        </a>
+        <p>Original experiments for an experimental web platform.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://developer.chrome.com/blog/html-in-canvas-origin-trial">Chrome brief ↗</a>
+        <a href="https://github.com/WICG/html-in-canvas">WICG explainer ↗</a>
+        <a href="https://canvasui.dev/">Canvas UI inspiration ↗</a>
+      </div>
+      <span class="footer-year">LAB / <span id="year"></span></span>
+    </footer>
+  </body>
+</html>
