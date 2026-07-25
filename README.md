@@ -16,6 +16,8 @@ is unavailable.
   `drawElementImage()`, with a semantic DOM fallback.
 - **Pixel lens** — a Canvas 2D optics study that works in current browsers.
 - **Spatial stack** — an interactive DOMMatrix-inspired transform model.
+- **Capability Atlas** — 16 runnable labs covering every documented rendering
+  primitive, layout behavior, and preserved browser integration.
 - **API anatomy** — a three-step, copyable implementation walkthrough.
 - **Field notes** — browser support, tradeoffs, accessibility, and production
   guidance.
@@ -63,6 +65,7 @@ Implementation details are in [`docs/getting-started.md`](./docs/getting-started
 - [Getting started](./docs/getting-started.md)
 - [How the API works](./docs/how-it-works.md)
 - [Browser support strategy](./docs/browser-support.md)
+- [Feature coverage matrix](./docs/feature-coverage.md)
 
 ## Sources and inspiration
 

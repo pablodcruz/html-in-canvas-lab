@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A runnable example for every documented HTML-in-Canvas capability and preserved browser feature."
+    />
+    <meta name="theme-color" content="#090a0f" />
+    <title>Capability Atlas — Canvas Native Lab</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./features.css" />
+    <script src="./features.js" defer></script>
+  </head>
+  <body class="atlas-page">
+    <a class="skip-link" href="#atlas">Skip to capability atlas</a>
+
+    <header class="site-header atlas-header">
+      <a class="brand" href="./index.html" aria-label="Canvas Native Lab, home">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span>Canvas Native Lab</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="./index.html#experiments">Experiments</a>
+        <a class="is-current" href="./features.html">Capability Atlas</a>
+        <a href="./index.html#anatomy">Walkthrough</a>
+      </nav>
+      <a class="header-link" href="https://github.com/pablodcruz/html-in-canvas-lab">
+        <span>GitHub</span><span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main>
+      <section class="atlas-hero">
+        <div class="atlas-orbit" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="section-kicker">Complete capability atlas / 16 labs</div>
+        <h1>Every feature.<br /><span>Something you can touch.</span></h1>
+        <p>
+          A test bench for each primitive and preserved browser behavior in the
+          experimental HTML-in-Canvas proposal. Native paths activate when the
+          API exists; every lab includes a runnable compatibility path.
+        </p>
+        <div class="atlas-runtime" aria-label="Current browser capability summary">
+          <div>
+            <span class="runtime-light" id="runtimeLight" aria-hidden="true"></span>
+            <strong id="runtimeMode">Detecting runtime…</strong>
+          </div>
+          <dl>
+            <div><dt>Native APIs</dt><dd id="nativeCount">0 / 5</dd></div>
+            <div><dt>Runnable labs</dt><dd>16 / 16</dd></div>
+            <div><dt>Fallbacks</dt><dd>Always on</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="coverage-strip" aria-label="Coverage summary">
+        <div><span>01</span><strong>Rendering</strong><small>5 labs</small></div>
+        <div><span>02</span><strong>Layout + sync</strong><small>3 labs</small></div>
+        <div><span>03</span><strong>Browser behavior</strong><small>8 labs</small></div>
+        <div class="coverage-total"><span>∑</span><strong>Complete</strong><small>16 / 16 mapped</small></div>
+      </section>
+
+      <section class="atlas-shell" id="atlas" aria-labelledby="atlas-title">
+        <div class="atlas-toolbar">
+          <div>
+            <div class="section-kicker">Runnable test bench</div>
+            <h2 id="atlas-title">Capability coverage</h2>
+          </div>
+          <div class="filter-group" aria-label="Filter labs">
+            <button class="filter-button is-active" type="button" data-filter="all">All</button>
+            <button class="filter-button" type="button" data-filter="rendering">Rendering</button>
+            <button class="filter-button" type="button" data-filter="layout">Layout</button>
+            <button class="filter-button" type="button" data-filter="browser">Browser</button>
+          </div>
+        </div>
+
+        <div class="atlas-grid">
+          <article class="lab-card lab-wide" data-category="rendering" id="lab-canvas-2d">
+            <header class="lab-header">
+              <div><span class="lab-index">R.01</span><span class="lab-category">Rendering</span></div>
+              <span class="lab-status" data-capability="drawElementImage">Checking…</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Canvas 2D · <code>drawElementImage()</code></h3>
+              <p>Paint a direct DOM child into Canvas 2D and keep its input interactive.</p>
+            </div>
+            <div class="lab-demo native-2d-demo">
+              <canvas id="atlas2dCanvas" layoutsubtree aria-label="Native Canvas 2D control surface">
+                <form class="native-source-card" id="atlas2dSource">
+                  <label for="atlas2dRange">Orbital gain</label>
+                  <input id="atlas2dRange" type="range" min="0" max="100" value="58" />
+                  <output for="atlas2dRange">58%</output>
+                </form>
+              </canvas>
+              <form class="native-source-card demo-fallback-card" id="atlas2dFallback">
+                <label for="atlas2dFallbackRange">Orbital gain</label>
+                <input id="atlas2dFallbackRange" type="range" min="0" max="100" value="58" />
+                <output for="atlas2dFallbackRange">58%</output>
+              </form>
+              <div class="demo-caption"><span id="atlas2dPath">DOM compatibility path</span><code>layoutsubtree → paint → transform</code></div>
+            </div>
+            <details class="lab-code">
+              <summary>View native path</summary>
+              <pre><code>canvas.onpaint = () =&gt; {
+  ctx.reset();
+  const matrix = ctx.drawElementImage(form, 32, 24);
+  form.style.transform = matrix.toString();
+};</code></pre>
+            </details>
+          </article>
+
+          <article class="lab-card" data-category="rendering" id="lab-webgl">
+            <header class="lab-header">
+              <div><span class="lab-index">R.02</span><span class="lab-category">Rendering</span></div>
+              <span class="lab-status" data-capability="texElementImage2D">Checking…</span>
+            </header>
+            <div class="lab-copy">
+              <h3>WebGL texture upload</h3>
+              <p>Map HTML to a GPU texture and animate it on a perspective surface.</p>
+            </div>
+            <div class="lab-demo gpu-demo">
+              <canvas id="webglCanvas" layoutsubtree aria-label="Animated WebGL texture">
+                <article class="gpu-source" id="webglSource">
+                  <small>HTML TEXTURE</small>
+                  <strong>WEB / GL</strong>
+                  <span>Live DOM source</span>
+                </article>
+              </canvas>
+              <div class="gpu-overlay" aria-hidden="true"><span>WEB / GL</span><small>Fallback texture</small></div>
+            </div>
+            <details class="lab-code">
+              <summary>View native path</summary>
+              <pre><code>gl.texElementImage2D(
+  gl.TEXTURE_2D, gl.RGBA, htmlElement, {}
+);</code></pre>
+            </details>
+          </article>
+
+          <article class="lab-card" data-category="rendering" id="lab-webgpu">
+            <header class="lab-header">
+              <div><span class="lab-index">R.03</span><span class="lab-category">Rendering</span></div>
+              <span class="lab-status" data-capability="copyElementImageToTexture">Checking…</span>
+            </header>
+            <div class="lab-copy">
+              <h3>WebGPU texture copy</h3>
+              <p>Copy a semantic DOM panel into a GPU texture with a Canvas 2D fallback.</p>
+            </div>
+            <div class="lab-demo gpu-demo webgpu-demo">
+              <canvas id="webgpuCanvas" layoutsubtree aria-label="WebGPU texture experiment">
+                <article class="gpu-source" id="webgpuSource">
+                  <small>GPU QUEUE</small>
+                  <strong>DOM → GPU</strong>
+                  <span>copyElementImageToTexture</span>
+                </article>
+              </canvas>
+              <div class="gpu-overlay" aria-hidden="true"><span>DOM → GPU</span><small id="webgpuPath">Canvas 2D fallback</small></div>
+            </div>
+            <details class="lab-code">
+              <summary>View native path</summary>
+              <pre><code>device.queue.copyElementImageToTexture(
+  { source: panel },
+  { destination: { texture }, width, height }
+);</code></pre>
+            </details>
+          </article>
+
+          <article class="lab-card lab-wide" data-category="rendering" id="lab-worker">
+            <header class="lab-header">
+              <div><span class="lab-index">R.04</span><span class="lab-category">Rendering</span></div>
+              <span class="lab-status" data-capability="captureElementImage">Checking…</span>
+            </header>
+            <div class="lab-copy">
+              <h3>ElementImage · OffscreenCanvas worker</h3>
+              <p>Transfer a captured DOM snapshot to a worker. The compatibility path runs the same live chart fully off the main thread.</p>
+            </div>
+            <div class="lab-demo worker-demo">
+              <canvas id="workerCanvas" width="800" height="230" layoutsubtree aria-label="Worker-rendered signal chart">
+                <div class="worker-source" id="workerSource" aria-hidden="true">worker signal <strong id="workerSignal">72</strong></div>
+              </canvas>
+              <div class="worker-readout">
+                <span><i></i> WORKER ACTIVE</span>
+                <output id="workerFrames">0 frames</output>
+              </div>
+            </div>
+            <details class="lab-code">
+              <summary>View native path</summary>
+              <pre><code>const image = canvas.captureElementImage(source);
+worker.postMessage({ elementImage: image }, [image]);</code></pre>
+            </details>
+          </article>
+
+          <article class="lab-card" data-category="rendering" id="lab-paint">
+            <header class="lab-header">
+              <div><span class="lab-index">R.05</span><span class="lab-category">Rendering</span></div>
+              <span class="lab-status" data-capability="requestPaint">Checking…</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Paint invalidation</h3>
+              <p>Change a child, inspect <code>changedElements</code>, then request another paint.</p>
+            </div>
+            <div class="lab-demo paint-demo">
+              <canvas id="paintCanvas" layoutsubtree aria-hidden="true">
+                <span id="paintSource">seed-0</span>
+              </canvas>
+              <div class="paint-counter"><strong id="paintCount">0</strong><span>paint events</span></div>
+              <button class="lab-button" id="requestPaintButton" type="button">Mutate + request paint</button>
+              <output id="changedElements">Waiting for interaction</output>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="layout" id="lab-transform">
+            <header class="lab-header">
+              <div><span class="lab-index">L.01</span><span class="lab-category">Layout + sync</span></div>
+              <span class="lab-status status-live">Interactive</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Transform synchronization</h3>
+              <p>Move the surface, then prove its nested hit target still lands correctly.</p>
+            </div>
+            <div class="lab-demo transform-demo" id="transformDemo">
+              <div class="transform-crosshair" aria-hidden="true"></div>
+              <div class="transform-card" id="transformCard">
+                <span>DOMMatrix</span>
+                <button id="hitTarget" type="button">Hit target · <b id="hitCount">0</b></button>
+              </div>
+              <label>Rotation <input id="rotationControl" type="range" min="-18" max="18" value="7" /></label>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="layout" id="lab-hidpi">
+            <header class="lab-header">
+              <div><span class="lab-index">L.02</span><span class="lab-category">Layout + sync</span></div>
+              <span class="lab-status status-live">ResizeObserver</span>
+            </header>
+            <div class="lab-copy">
+              <h3>High-DPI responsive grid</h3>
+              <p>Resize the CSS surface while its backing store tracks physical pixels.</p>
+            </div>
+            <div class="lab-demo hidpi-demo">
+              <div class="hidpi-canvas-wrap" id="hidpiWrap">
+                <canvas id="hidpiCanvas" aria-label="Device-pixel-aligned grid"></canvas>
+              </div>
+              <input id="hidpiSize" type="range" min="45" max="100" value="76" aria-label="Canvas width" />
+              <output id="hidpiReadout">Measuring…</output>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="layout" id="lab-fallback">
+            <header class="lab-header">
+              <div><span class="lab-index">L.03</span><span class="lab-category">Layout + sync</span></div>
+              <span class="lab-status status-fallback">Progressive</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Graceful fallback</h3>
+              <p>Force both enhancement tiers without changing the semantic source.</p>
+            </div>
+            <div class="lab-demo fallback-demo">
+              <div class="fallback-preview" id="fallbackPreview">
+                <span class="fallback-shader" aria-hidden="true"></span>
+                <article><small>ONE SOURCE</small><strong>Readable either way.</strong><a href="#lab-fallback">Real link →</a></article>
+              </div>
+              <div class="segmented-control" aria-label="Fallback mode">
+                <button class="is-active" type="button" data-fallback-mode="enhanced">Enhanced</button>
+                <button type="button" data-fallback-mode="plain">Plain DOM</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="lab-card lab-wide" data-category="browser" id="lab-text">
+            <header class="lab-header">
+              <div><span class="lab-index">B.01</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">DOM layout</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Text layout, formatting, and direction</h3>
+              <p>Switch one semantic message between multiline Latin, Arabic RTL, and vertical Japanese layout.</p>
+            </div>
+            <div class="lab-demo text-demo">
+              <article id="languageSurface" lang="en">
+                <small>LAYOUT ENGINE / EN</small>
+                <p>Interfaces keep their <em>language</em>, rhythm, and meaning.</p>
+              </article>
+              <div class="segmented-control" aria-label="Text language">
+                <button class="is-active" type="button" data-language="en">English</button>
+                <button type="button" data-language="ar">العربية</button>
+                <button type="button" data-language="ja">日本語</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-forms">
+            <header class="lab-header">
+              <div><span class="lab-index">B.02</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Native controls</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Forms + validation</h3>
+              <p>Use browser-native input, validation, select, focus, and output behavior.</p>
+            </div>
+            <form class="lab-demo form-demo" id="nativeForm">
+              <label for="pilotName">Pilot name</label>
+              <input id="pilotName" name="pilot" required minlength="2" placeholder="Required" autocomplete="name" />
+              <label for="pilotRole">Role</label>
+              <select id="pilotRole" name="role">
+                <option>Explorer</option><option>Engineer</option><option>Navigator</option>
+              </select>
+              <button class="lab-button" type="submit">Validate manifest</button>
+              <output id="formResult" aria-live="polite">Awaiting manifest</output>
+            </form>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-selection">
+            <header class="lab-header">
+              <div><span class="lab-index">B.03</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Selectable</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Select, copy, paste, context</h3>
+              <p>Drag across the phrase, copy it, paste below, or open the native context menu.</p>
+            </div>
+            <div class="lab-demo selection-demo">
+              <blockquote id="selectablePhrase">Pixels are temporary. Meaning survives.</blockquote>
+              <div>
+                <button class="lab-button" id="copyPhrase" type="button">Copy phrase</button>
+                <span id="contextCount">0 context menus</span>
+              </div>
+              <label class="sr-only" for="pasteTarget">Paste the copied phrase</label>
+              <textarea id="pasteTarget" rows="2" placeholder="Paste here to complete the loop"></textarea>
+              <output id="clipboardResult" aria-live="polite">Ready</output>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-a11y">
+            <header class="lab-header">
+              <div><span class="lab-index">B.04</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Accessibility tree</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Accessible name + live state</h3>
+              <p>Operate by keyboard and inspect the same labels a screen reader receives.</p>
+            </div>
+            <div class="lab-demo a11y-demo">
+              <button id="a11yToggle" type="button" aria-pressed="false" aria-describedby="a11yDescription">
+                <span aria-hidden="true">◉</span>
+                <strong>Telemetry</strong>
+                <small id="a11yDescription">Toggle live telemetry feed</small>
+              </button>
+              <div class="a11y-tree" aria-hidden="true">
+                <span>button</span><span>name: “Telemetry”</span><span id="pressedState">pressed: false</span>
+              </div>
+              <p class="sr-only" id="a11yLive" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-find">
+            <header class="lab-header">
+              <div><span class="lab-index">B.05</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Find-in-page</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Browser find</h3>
+              <p>Copy the beacon, press Ctrl/Cmd+F, and find real DOM text inside the experience.</p>
+            </div>
+            <div class="lab-demo find-demo">
+              <span>SEARCH BEACON</span>
+              <strong id="findBeacon">NEON-ORBIT-742</strong>
+              <button class="lab-button" id="copyBeacon" type="button">Copy search term</button>
+              <output id="findResult">Then use browser Find</output>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-indexing" itemscope itemtype="https://schema.org/TechArticle">
+            <header class="lab-header">
+              <div><span class="lab-index">B.06</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Semantic</span>
+            </header>
+            <div class="lab-copy">
+              <h3 itemprop="headline">Indexability + agent interface</h3>
+              <p itemprop="description">Extract the heading, description, link, and structured-data type exactly as a crawler can.</p>
+            </div>
+            <div class="lab-demo indexing-demo">
+              <article id="crawlTarget">
+                <h4>Atlas signal report</h4>
+                <p>Semantic content remains inspectable beyond its pixels.</p>
+                <a href="./docs/how-it-works.md">Read technical notes</a>
+              </article>
+              <button class="lab-button" id="inspectSemantics" type="button">Run crawler view</button>
+              <pre id="crawlerOutput" aria-live="polite">Waiting to inspect DOM…</pre>
+            </div>
+          </article>
+
+          <article class="lab-card" data-category="browser" id="lab-extension">
+            <header class="lab-header">
+              <div><span class="lab-index">B.07</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Mutation-aware</span>
+            </header>
+            <div class="lab-copy">
+              <h3>Extension-style mutation</h3>
+              <p>Simulate a text-replacement extension and watch the DOM-driven surface update.</p>
+            </div>
+            <div class="lab-demo extension-demo">
+              <article id="extensionTarget"><small>LOCALIZED BY DOM</small><strong>Hello, interface.</strong></article>
+              <button class="lab-button" id="extensionMutation" type="button">Run replacement</button>
+              <output id="mutationCount">0 mutations observed</output>
+            </div>
+          </article>
+
+          <article class="lab-card lab-wide" data-category="browser" id="lab-devtools">
+            <header class="lab-header">
+              <div><span class="lab-index">B.08</span><span class="lab-category">Browser behavior</span></div>
+              <span class="lab-status status-live">Inspectable</span>
+            </header>
+            <div class="lab-copy">
+              <h3>DevTools style inspection</h3>
+              <p>Change a CSS custom property, then inspect <code>#devtoolsTarget</code>. Computed styles and semantic source remain ordinary DOM.</p>
+            </div>
+            <div class="lab-demo devtools-demo">
+              <article id="devtoolsTarget" style="--inspect-accent: #c8ff3d">
+                <span class="inspect-badge">INSPECT ME</span>
+                <strong>CSS stays live.</strong>
+                <p>Change <code>--inspect-accent</code> in DevTools.</p>
+              </article>
+              <div>
+                <button class="lab-button" id="cycleDevtoolsStyle" type="button">Cycle custom property</button>
+                <output id="computedStyle">--inspect-accent: #c8ff3d</output>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="atlas-proof" aria-labelledby="proof-title">
+        <div class="section-kicker">Coverage proof</div>
+        <h2 id="proof-title">Every claim has a test surface.</h2>
+        <div class="proof-table-wrap">
+          <table>
+            <thead><tr><th>Capability</th><th>Native primitive</th><th>Runnable proof</th><th>Fallback</th></tr></thead>
+            <tbody>
+              <tr><td>Canvas 2D</td><td><code>drawElementImage</code></td><td><a href="#lab-canvas-2d">Interactive control</a></td><td>Semantic form</td></tr>
+              <tr><td>WebGL</td><td><code>texElementImage2D</code></td><td><a href="#lab-webgl">Animated texture</a></td><td>Generated GPU texture</td></tr>
+              <tr><td>WebGPU</td><td><code>copyElementImageToTexture</code></td><td><a href="#lab-webgpu">Texture copy</a></td><td>Canvas 2D renderer</td></tr>
+              <tr><td>Worker rendering</td><td><code>captureElementImage</code></td><td><a href="#lab-worker">Offscreen chart</a></td><td>Worker-generated pixels</td></tr>
+              <tr><td>Paint lifecycle</td><td><code>paint / requestPaint</code></td><td><a href="#lab-paint">Invalidation counter</a></td><td>Simulated event log</td></tr>
+              <tr><td>Layout + hit testing</td><td><code>getElementTransform</code></td><td><a href="#lab-transform">Transform target</a></td><td>DOMMatrix CSS</td></tr>
+              <tr><td>Physical sizing</td><td><code>ResizeObserver</code></td><td><a href="#lab-hidpi">DPR readout</a></td><td>Scaled backing grid</td></tr>
+              <tr><td>Browser integrations</td><td>Semantic DOM</td><td><a href="#lab-text">Eight browser labs</a></td><td>Native DOM</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="atlas-cta">
+        <div>
+          <div class="section-kicker">Keep experimenting</div>
+          <h2>The atlas is a test bench,<br />not a compatibility claim.</h2>
+        </div>
+        <p>
+          The proposal is still moving. Use these labs to test a browser build,
+          inspect fallbacks, and report findings against the living explainer.
+        </p>
+        <a class="button button-primary" href="https://github.com/WICG/html-in-canvas">Open the WICG explainer ↗</a>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <a class="brand footer-brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span>Canvas Native Lab</span>
+        </a>
+        <p>Sixteen runnable labs. One experimental platform.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html">Showcase home</a>
+        <a href="./docs/feature-coverage.md">Coverage documentation</a>
+        <a href="https://developer.chrome.com/blog/html-in-canvas-origin-trial">Chrome origin trial ↗</a>
+      </div>
+      <span class="footer-year">ATLAS / 16</span>
+    </footer>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "HTML-in-Canvas Capability Atlas",
+        "description": "Runnable examples for every documented HTML-in-Canvas primitive and preserved browser feature.",
+        "author": { "@type": "Person", "name": "Pablo de la Cruz" }
+      }
+    </script>
+  </body>
+</html>
