@@ -5,7 +5,7 @@
   "description": "Original experiments and practical walkthroughs for the experimental HTML-in-Canvas API.",
   "scripts": {
     "start": "python -m http.server 4173",
-    "check": "node --check app.js"
+    "check": "node --check app.js && node --check features.js"
   },
   "keywords": [
     "html-in-canvas",
