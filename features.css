@@ -945,6 +945,11 @@
   cursor: pointer;
 }
 
+.a11y-demo > button:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 3px;
+}
+
 .a11y-demo > button[aria-pressed="true"] {
   border-color: var(--acid);
   box-shadow: inset 0 0 0 1px var(--acid);
@@ -968,7 +973,7 @@
 
 .a11y-tree {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
   border: 1px solid #333640;
@@ -978,10 +983,11 @@
 
 .a11y-tree span {
   padding: 10px;
-  color: #8b8e99;
+  color: #abadba;
   background: #11131a;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 8px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
 }
 
 .sr-only {
