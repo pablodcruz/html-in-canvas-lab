@@ -768,9 +768,6 @@ async function runSmokeTests() {
   );
   document.querySelector('[data-filter="all"]').click();
 
-  document.querySelector("#requestPaintButton").click();
-  assert("paint lifecycle", Number(document.querySelector("#paintCount").textContent) >= 1);
-
   const rotation = document.querySelector("#rotationControl");
   rotation.value = "-10";
   fireInput(rotation);
@@ -812,6 +809,24 @@ async function runSmokeTests() {
 
   await new Promise((resolve) => window.setTimeout(resolve, 800));
   assert("worker initialized", Boolean(document.querySelector("#workerCanvas").dataset.workerPath));
+
+  // After startup paints, measure a new event instead of accepting the first paint.
+  const paintCount = document.querySelector("#paintCount");
+  const previousPaintCount = Number(paintCount.textContent);
+  const painted = await new Promise((resolve) => {
+    const finish = (result) => {
+      observer.disconnect();
+      window.clearTimeout(deadline);
+      resolve(result);
+    };
+    const observer = new MutationObserver(() => {
+      if (Number(paintCount.textContent) > previousPaintCount) finish(true);
+    });
+    const deadline = window.setTimeout(() => finish(false), 1000);
+    observer.observe(paintCount, { childList: true, characterData: true, subtree: true });
+    document.querySelector("#requestPaintButton").click();
+  });
+  assert("paint lifecycle", painted);
 
   const failures = results.filter((result) => !result.passed);
   document.documentElement.dataset.smoke = failures.length ? "failed" : "passed";
