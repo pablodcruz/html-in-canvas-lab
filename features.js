@@ -30,7 +30,9 @@ function updateCapabilityUI() {
 
   document.querySelectorAll("[data-capability]").forEach((badge) => {
     const available = capabilities[badge.dataset.capability];
-    badge.textContent = available ? "Native path" : "Fallback active";
+    badge.textContent = available
+      ? badge.dataset.nativeLabel || "Native path"
+      : badge.dataset.fallbackLabel || "Fallback active";
     badge.classList.toggle("status-native", available);
     badge.classList.toggle("status-fallback", !available);
   });
@@ -353,102 +355,215 @@ function drawWebGPUFallback(canvas) {
   return () => cancelAnimationFrame(frame);
 }
 
-function setupWorker() {
-  const canvas = document.querySelector("#workerCanvas");
-  const source = document.querySelector("#workerSource");
-  const frameOutput = document.querySelector("#workerFrames");
-  const workerCode = `
-    let canvas, ctx, width = 800, height = 230, frame = 0, timer;
-    function draw() {
-      if (!ctx) return;
-      frame++;
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#0d0f15';
-      ctx.fillRect(0, 0, width, height);
-      ctx.strokeStyle = 'rgba(255,255,255,.08)';
-      ctx.lineWidth = 1;
-      for (let y = 35; y < height; y += 35) {
-        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
-      }
-      ctx.strokeStyle = '#c8ff3d';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let x = 0; x <= width; x += 4) {
-        const y = height * .52 + Math.sin(x * .025 + frame * .05) * 42 + Math.sin(x * .008) * 18;
-        x === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-      }
-      ctx.stroke();
-      if (frame % 8 === 0) self.postMessage({ frame });
-    }
-    self.onmessage = (event) => {
-      if (event.data.canvas) {
-        canvas = event.data.canvas;
-        ctx = canvas.getContext('2d');
-        width = canvas.width; height = canvas.height;
-        timer = setInterval(draw, 32);
-        self.postMessage({ ready: true });
-      }
-      if (event.data.elementImage && ctx?.drawElementImage) {
-        ctx.drawElementImage(event.data.elementImage, 18, 15);
-        event.data.elementImage.close?.();
-      }
-    };
-  `;
-
-  if (!("transferControlToOffscreen" in canvas) || !("Worker" in window)) {
-    setupMainThreadWorkerFallback(canvas, frameOutput);
-    return;
-  }
-
-  try {
-    const worker = new Worker(URL.createObjectURL(new Blob([workerCode], { type: "text/javascript" })));
-    const offscreen = canvas.transferControlToOffscreen();
-    canvas.dataset.workerPath = "offscreen";
-    frameOutput.value = "worker initialized";
-    worker.postMessage({ canvas: offscreen }, [offscreen]);
-    worker.addEventListener("message", (event) => {
-      if (event.data.ready) frameOutput.value = "worker ready";
-      if (event.data.frame) frameOutput.value = `${event.data.frame} frames`;
-    });
-
-    if (capabilities.captureElementImage) {
-      canvas.onpaint = () => {
-        try {
-          const image = canvas.captureElementImage(source);
-          worker.postMessage({ elementImage: image }, [image]);
-        } catch {
-          // The worker-generated signal remains active while the first snapshot settles.
-        }
-      };
-      canvas.requestPaint?.();
-    }
-  } catch {
-    setupMainThreadWorkerFallback(canvas, frameOutput);
-  }
+function workerSignalValue(x, frame) {
+  return Math.sin(x * 19 + frame * 0.13) * 0.31 + Math.sin(x * 6.4) * 0.13;
 }
 
-function setupMainThreadWorkerFallback(canvas, output) {
-  const ctx = canvas.getContext("2d");
-  canvas.dataset.workerPath = "main-thread-fallback";
-  let frame = 0;
-  function draw() {
-    frame++;
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.fillStyle = "#0d0f15";
-    ctx.fillRect(0, 0, width, height);
-    ctx.strokeStyle = "#c8ff3d";
-    ctx.lineWidth = 3;
+function drawWorkerSignal(ctx, frame) {
+  const { width, height } = ctx.canvas;
+  ctx.fillStyle = "#0b111d";
+  ctx.fillRect(0, 0, width, height);
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 12; i++) {
+    ctx.strokeStyle = i === 6 ? "#4a5e7d" : "#233149";
+    const x = width * i / 12;
     ctx.beginPath();
-    for (let x = 0; x <= width; x += 5) {
-      const y = height * 0.52 + Math.sin(x * 0.025 + frame * 0.05) * 42;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
     ctx.stroke();
-    output.value = `${frame} frames`;
-    if (!prefersReducedMotion) requestAnimationFrame(draw);
   }
-  draw();
+  for (let i = 1; i < 4; i++) {
+    ctx.strokeStyle = i === 2 ? "#4a5e7d" : "#233149";
+    const y = height * i / 4;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "#a9e1ff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let x = 0; x <= width; x += 4) {
+    const y = height * (0.5 - workerSignalValue(x / width, frame) * 0.5);
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+function createWorkerSignalRunner(draw, report, initialFrame = 0) {
+  let timer = null;
+  let frame = initialFrame;
+  function redraw() {
+    draw(frame);
+    report(frame);
+  }
+  function setPlaying(playing) {
+    if (!playing) {
+      clearInterval(timer);
+      timer = null;
+      redraw();
+    } else if (timer === null) {
+      timer = setInterval(() => {
+        draw(++frame);
+        if (frame % 4 === 0) report(frame);
+      }, 32);
+    }
+  }
+  return {
+    redraw,
+    setPlaying,
+    step() {
+      if (timer !== null) return;
+      frame++;
+      redraw();
+    },
+  };
+}
+
+function setupWorker() {
+  let canvas = document.querySelector("#workerCanvas");
+  const frameOutput = document.querySelector("#workerFrames");
+  const sampleOutput = document.querySelector("#workerSample");
+  const path = document.querySelector("#workerPath");
+  const motion = document.querySelector("#workerMotion");
+  const play = document.querySelector("#workerPlay");
+  const step = document.querySelector("#workerStep");
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let playing = !preference.matches;
+  let frame = 0;
+  let renderer;
+  let worker;
+
+  function report(nextFrame) {
+    frame = nextFrame;
+    frameOutput.value = `Frame ${String(frame).padStart(3, "0")}`;
+    sampleOutput.value = `Center sample ${workerSignalValue(0.5, frame).toFixed(2)}`;
+  }
+
+  function updateMotion() {
+    play.textContent = playing ? "Pause animation" : "Play animation";
+    step.disabled = playing;
+    motion.textContent = playing ? "Running" : preference.matches ? "Paused · reduced motion" : "Paused";
+  }
+
+  function changePlaying(next) {
+    playing = next;
+    renderer.setPlaying(playing);
+    updateMotion();
+  }
+
+  function fallback(transferred) {
+    if (worker) worker.terminate();
+    if (transferred) {
+      const replacement = canvas.cloneNode(true);
+      canvas.replaceWith(replacement);
+      canvas = replacement;
+    }
+    canvas.onpaint = null;
+    const ctx = canvas.getContext("2d");
+    canvas.dataset.workerPath = ctx ? "main-thread-fallback" : "text-fallback";
+    path.textContent = ctx ? "Main thread · generated signal" : "Text-only signal";
+    if (!ctx) canvas.hidden = true;
+    renderer = createWorkerSignalRunner((index) => {
+      if (ctx) drawWorkerSignal(ctx, index);
+    }, report, frame);
+    renderer.redraw();
+    renderer.setPlaying(playing);
+  }
+
+  if (typeof canvas.transferControlToOffscreen !== "function" || typeof Worker !== "function") {
+    fallback(false);
+  } else {
+    let transferred = false;
+    const workerCode = `
+      ${workerSignalValue.toString()}
+      ${drawWorkerSignal.toString()}
+      ${createWorkerSignalRunner.toString()}
+      let runner, ctx, snapshot;
+      self.onmessage = ({data}) => {
+        if (data.canvas) {
+          ctx = data.canvas.getContext("2d");
+          if (!ctx) throw new Error("No worker 2D canvas context");
+          runner = createWorkerSignalRunner((frame) => {
+            drawWorkerSignal(ctx, frame);
+            if (snapshot) {
+              try {
+                ctx.drawElementImage(snapshot, 18, 15);
+              } catch {
+                snapshot.close?.();
+                snapshot = null;
+                self.postMessage({ captured: false });
+              }
+            }
+          }, (frame) => self.postMessage({ frame }));
+          runner.redraw();
+          runner.setPlaying(data.playing);
+        } else if (data.elementImage) {
+          snapshot?.close?.();
+          snapshot = typeof ctx?.drawElementImage === "function" ? data.elementImage : null;
+          if (!snapshot) data.elementImage.close?.();
+          runner.redraw();
+          self.postMessage({ captured: !!snapshot });
+        } else if (data.step) {
+          runner.step();
+        } else if ("playing" in data) {
+          runner.setPlaying(data.playing);
+        }
+      };
+    `;
+
+    try {
+      const url = URL.createObjectURL(new Blob([workerCode], { type: "text/javascript" }));
+      try {
+        worker = new Worker(url);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+      const offscreen = canvas.transferControlToOffscreen();
+      transferred = true;
+      canvas.dataset.workerPath = "offscreen";
+      path.textContent = "Worker · generated signal";
+      renderer = {
+        setPlaying: (value) => worker.postMessage({ playing: value }),
+        step: () => worker.postMessage({ step: true }),
+      };
+      worker.addEventListener("error", () => fallback(transferred), { once: true });
+      worker.addEventListener("message", ({ data }) => {
+        if (canvas.dataset.workerPath !== "offscreen") return;
+        if ("frame" in data) report(data.frame);
+        if ("captured" in data) {
+          path.textContent = data.captured ? "Worker · DOM snapshot" : "Worker · generated signal";
+        }
+      });
+      worker.postMessage({ canvas: offscreen, playing }, [offscreen]);
+
+      if (capabilities.captureElementImage) {
+        const source = document.querySelector("#workerSource");
+        canvas.onpaint = () => {
+          let image;
+          try {
+            image = canvas.captureElementImage(source);
+            worker.postMessage({ elementImage: image }, [image]);
+          } catch {
+            image?.close?.();
+            // The generated waveform stays usable when capture is unavailable.
+          }
+        };
+        canvas.requestPaint?.();
+      }
+    } catch {
+      fallback(transferred);
+    }
+  }
+
+  play.addEventListener("click", () => changePlaying(!playing));
+  step.addEventListener("click", () => renderer.step());
+  preference.addEventListener("change", () => {
+    if (preference.matches) changePlaying(false);
+    else updateMotion();
+  });
+  updateMotion();
 }
 
 function setupPaintLifecycle() {

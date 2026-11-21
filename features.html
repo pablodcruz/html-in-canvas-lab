@@ -172,19 +172,36 @@
           <article class="lab-card lab-wide" data-category="rendering" id="lab-worker">
             <header class="lab-header">
               <div><span class="lab-index">R.04</span><span class="lab-category">Rendering</span></div>
-              <span class="lab-status" data-capability="captureElementImage">Checking…</span>
+              <span class="lab-status" data-capability="captureElementImage" data-native-label="DOM capture available" data-fallback-label="Generated fallback">Checking…</span>
             </header>
             <div class="lab-copy">
               <h3>ElementImage · OffscreenCanvas worker</h3>
-              <p>Transfer a captured DOM snapshot to a worker. The compatibility path runs the same live chart fully off the main thread.</p>
+              <p>Inspect a synthetic waveform. Pause or advance one frame with the same controls on either rendering path.</p>
             </div>
             <div class="lab-demo worker-demo">
-              <canvas id="workerCanvas" width="800" height="230" layoutsubtree aria-label="Worker-rendered signal chart">
-                <div class="worker-source" id="workerSource" aria-hidden="true">worker signal <strong id="workerSignal">72</strong></div>
-              </canvas>
+              <div class="worker-instrument">
+                <span>Waveform / R.04</span>
+                <span id="workerPath">Connecting renderer…</span>
+              </div>
+              <div class="worker-scope">
+                <canvas id="workerCanvas" width="800" height="230" layoutsubtree role="img"
+                  aria-label="Synthetic waveform" aria-describedby="workerDescription">
+                  <div class="worker-source" id="workerSource" aria-hidden="true">scope specimen <strong>R.04</strong></div>
+                </canvas>
+                <span class="worker-scale" aria-hidden="true"><span>+0.5</span><span>0.0</span><span>−0.5</span></span>
+              </div>
+              <p class="worker-description" id="workerDescription">
+                The horizontal axis is sample position. The center sample gives relative amplitude
+                as text. The plot is synthetic, not a measurement.
+              </p>
+              <div class="worker-controls">
+                <button class="lab-button" type="button" id="workerPlay">Play animation</button>
+                <button class="lab-button" type="button" id="workerStep">Step frame</button>
+              </div>
               <div class="worker-readout">
-                <span><i></i> WORKER ACTIVE</span>
-                <output id="workerFrames">0 frames</output>
+                <span id="workerMotion" role="status">Paused</span>
+                <output id="workerFrames" aria-label="Frame" aria-live="off">Frame 000</output>
+                <output id="workerSample" aria-label="Center sample" aria-live="off">Center sample —</output>
               </div>
             </div>
             <details class="lab-code">

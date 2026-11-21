@@ -12,7 +12,7 @@ primitive is unavailable.
 | Canvas 2D | `drawElementImage()` | Interactive range control rendered from HTML | Identical semantic form |
 | WebGL | `texElementImage2D()` | Animated HTML texture on a GPU quad | Canvas-generated WebGL texture |
 | WebGPU | `copyElementImageToTexture()` | Semantic panel copied to a GPU texture | Animated Canvas 2D surface |
-| Worker rendering | `captureElementImage()` + `OffscreenCanvas` | Live worker-rendered signal | Worker-generated pixels |
+| Worker rendering | `captureElementImage()` + `OffscreenCanvas` | Worker-rendered waveform with pause and single-frame stepping | The same generated signal and controls in a worker or on the main thread |
 | Paint lifecycle | `paint`, `changedElements`, `requestPaint()` | Mutation and invalidation counter | Simulated invalidation log |
 
 ## Layout and synchronization
@@ -50,7 +50,7 @@ synchronized. In other browsers it remains ordinary, fully functional DOM.
   source.
 - Canvas backing stores track the display's physical pixel density.
 - Fallbacks do not depend on user-agent detection.
-- Reduced-motion preferences stop nonessential animation loops.
+- Reduced-motion preferences stop nonessential animation loops. The worker waveform starts paused and permits deliberate stepping or playback.
 - The project does not attempt to render cross-origin iframe content.
 - The worker lab keeps useful behavior without `captureElementImage()` by
   generating its chart inside `OffscreenCanvas`.
