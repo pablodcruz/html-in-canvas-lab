@@ -357,8 +357,9 @@ function setupWorker() {
   const canvas = document.querySelector("#workerCanvas");
   const source = document.querySelector("#workerSource");
   const frameOutput = document.querySelector("#workerFrames");
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const workerCode = `
-    let canvas, ctx, width = 800, height = 230, frame = 0, timer;
+    let canvas, ctx, width = 800, height = 230, frame = 0, timer, reduced;
     function draw() {
       if (!ctx) return;
       frame++;
@@ -380,13 +381,29 @@ function setupWorker() {
       ctx.stroke();
       if (frame % 8 === 0) self.postMessage({ frame });
     }
+    function setMotion(next) {
+      if (next === reduced) return;
+      reduced = next;
+      clearInterval(timer);
+      timer = undefined;
+      if (reduced) {
+        frame = 0;
+        draw();
+        self.postMessage({ reduced: true });
+      } else {
+        draw();
+        self.postMessage({ reduced: false, frame });
+        timer = setInterval(draw, 32);
+      }
+    }
     self.onmessage = (event) => {
       if (event.data.canvas) {
         canvas = event.data.canvas;
         ctx = canvas.getContext('2d');
         width = canvas.width; height = canvas.height;
-        timer = setInterval(draw, 32);
-        self.postMessage({ ready: true });
+        setMotion(event.data.reduced);
+      } else if (typeof event.data.reduced === 'boolean') {
+        setMotion(event.data.reduced);
       }
       if (event.data.elementImage && ctx?.drawElementImage) {
         ctx.drawElementImage(event.data.elementImage, 18, 15);
@@ -396,7 +413,7 @@ function setupWorker() {
   `;
 
   if (!("transferControlToOffscreen" in canvas) || !("Worker" in window)) {
-    setupMainThreadWorkerFallback(canvas, frameOutput);
+    setupMainThreadWorkerFallback(canvas, frameOutput, motion);
     return;
   }
 
@@ -405,10 +422,13 @@ function setupWorker() {
     const offscreen = canvas.transferControlToOffscreen();
     canvas.dataset.workerPath = "offscreen";
     frameOutput.value = "worker initialized";
-    worker.postMessage({ canvas: offscreen }, [offscreen]);
     worker.addEventListener("message", (event) => {
-      if (event.data.ready) frameOutput.value = "worker ready";
-      if (event.data.frame) frameOutput.value = `${event.data.frame} frames`;
+      if (event.data.reduced === true) frameOutput.value = "Static · reduced motion";
+      else if (event.data.frame) frameOutput.value = `${event.data.frame} frames`;
+    });
+    worker.postMessage({ canvas: offscreen, reduced: motion.matches }, [offscreen]);
+    motion.addEventListener("change", (event) => {
+      worker.postMessage({ reduced: event.matches });
     });
 
     if (capabilities.captureElementImage) {
@@ -423,14 +443,15 @@ function setupWorker() {
       canvas.requestPaint?.();
     }
   } catch {
-    setupMainThreadWorkerFallback(canvas, frameOutput);
+    setupMainThreadWorkerFallback(canvas, frameOutput, motion);
   }
 }
 
-function setupMainThreadWorkerFallback(canvas, output) {
+function setupMainThreadWorkerFallback(canvas, output, motion) {
   const ctx = canvas.getContext("2d");
   canvas.dataset.workerPath = "main-thread-fallback";
   let frame = 0;
+  let animation;
   function draw() {
     frame++;
     const width = canvas.width;
@@ -445,10 +466,17 @@ function setupMainThreadWorkerFallback(canvas, output) {
       x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     ctx.stroke();
-    output.value = `${frame} frames`;
-    if (!prefersReducedMotion) requestAnimationFrame(draw);
+    output.value = motion.matches ? "Static · reduced motion" : `${frame} frames`;
+    if (!motion.matches) animation = requestAnimationFrame(draw);
   }
-  draw();
+  function syncMotion() {
+    if (animation !== undefined) cancelAnimationFrame(animation);
+    animation = undefined;
+    if (motion.matches) frame = 0;
+    draw();
+  }
+  motion.addEventListener("change", syncMotion);
+  syncMotion();
 }
 
 function setupPaintLifecycle() {
