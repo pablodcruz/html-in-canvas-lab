@@ -342,16 +342,19 @@ worker.postMessage({ elementImage: image }, [image]);</code></pre>
             </header>
             <div class="lab-copy">
               <h3>Accessible name + live state</h3>
-              <p>Operate by keyboard and inspect the same labels a screen reader receives.</p>
+              <p>Toggle by keyboard to see how a control’s name and description stay fixed while its pressed state changes.</p>
             </div>
             <div class="lab-demo a11y-demo">
-              <button id="a11yToggle" type="button" aria-pressed="false" aria-describedby="a11yDescription">
+              <button id="a11yToggle" type="button" aria-pressed="false" aria-labelledby="a11yName" aria-describedby="a11yDescription">
                 <span aria-hidden="true">◉</span>
-                <strong>Telemetry</strong>
+                <strong id="a11yName">Telemetry</strong>
                 <small id="a11yDescription">Toggle live telemetry feed</small>
               </button>
               <div class="a11y-tree" aria-hidden="true">
-                <span>button</span><span>name: “Telemetry”</span><span id="pressedState">pressed: false</span>
+                <span>role: button</span>
+                <span>name: “Telemetry”</span>
+                <span>description: “Toggle live telemetry feed”</span>
+                <span id="pressedState">pressed: false</span>
               </div>
               <p class="sr-only" id="a11yLive" aria-live="polite"></p>
             </div>
